@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div class="quotes"></div>
+<script>
+const params = new URLSearchParams(location.search);
+let page = 1;
+let hasNext = true;
+function load(n) {
+  fetch("/api/quotes?page=" + n).then(r => r.json()).then(data => {
+    hasNext = data.has_next;
+    for (const quote of data.quotes) {
+      const div = document.createElement("div");
+      div.className = "quote";
+      div.style.height = "200px";
+      div.textContent = quote.text;
+      document.querySelector(".quotes").appendChild(div);
+    }
+  }).catch(() => {});
+}
+load(1);
+if (params.has("dup")) load(1);
+window.addEventListener("scroll", () => {
+  if (hasNext && Math.abs(window.scrollY - (document.documentElement.scrollHeight - window.innerHeight)) <= 1) {
+    page += 1;
+    load(page);
+    if (params.has("dup")) load(page);
+  }
+});
+</script>
+</body>
+</html>
